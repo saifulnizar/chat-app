@@ -123,7 +123,14 @@ const props = defineProps<{
   messages: Message[];
   typingUsers: string[];
   isConnected: boolean;
-  channelInfo: { name: string; description:string; memberCount: number, messageCount:number, lastMessageAt:string, lastMessageText:string, } | null;
+  channelInfo: { 
+    name: string; 
+    description:string; 
+    memberCount: number, 
+    messageCount:number, 
+    lastMessageAt:string | null, 
+    lastMessageText:string | null, 
+  } | null;
 }>();
 
 const emit = defineEmits<{

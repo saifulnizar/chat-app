@@ -7,7 +7,7 @@ export interface Message {
 }
 
 export interface WebSocketEvent {
-  event_type: 'created' | 'typing_start' | 'typing_stop' | 'delivered' | 'read';
+  event_type: 'created' | 'typing_start' | 'typing_stop' | 'delivered' | 'read' | 'added';
   app_id?: string;
   channel_id: string;
   sender_id?: string;

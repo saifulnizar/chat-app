@@ -63,6 +63,7 @@ export function useChat(username: string, isNewUser: boolean) {
         memberCount: data.member_count,
         messageCount : data.member_count,
         lastMessageAt : data.last_message_at ?? null,
+        lastMessageText: null
 
       };
     } catch (err) {
@@ -161,8 +162,10 @@ export function useChat(username: string, isNewUser: boolean) {
       connect();
 
       // Load message history
-      // await loadHistory();
-      await Promise.all([loadHistory(), loadChannel()]);
+      
+      await loadChannel();
+      await loadHistory();
+
     } catch (err) {
       console.error('Failed to initialize chat:', err);
       error.value = err instanceof Error ? err.message : 'Failed to initialize chat';

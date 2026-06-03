@@ -81,14 +81,28 @@
       <!-- Input Area -->
       <div class="bg-white border-t border-gray-200 px-6 py-4">
         <form @submit.prevent="handleSendMessage" class="flex items-center gap-3">
-          <button
-            type="button"
-            class="flex-shrink-0 w-10 h-10 flex items-center justify-center text-gray-400 hover:text-zinc-900 rounded-full hover:bg-gray-100 transition-all duration-200"
-          >
-            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-          </button>
+      
+          <div class="relative">
+            <button
+              ref="emojiButtonRef"
+              type="button"
+              @click="showEmojiPicker = !showEmojiPicker"
+              class="flex-shrink-0 w-10 h-10 flex items-center justify-center text-gray-400 hover:text-zinc-900 rounded-full hover:bg-gray-100 transition-all duration-200"
+            >
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.182 15.182a4.5 4.5 0 0 1-6.364 0M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z" />
+              </svg>
+            </button>
+
+            <!-- Emoji Picker -->
+            <div v-if="showEmojiPicker" class="absolute bottom-12 left-0 z-50">
+              <EmojiPicker
+                :native="true"
+                @select="onSelectEmoji"
+              />
+            </div>
+          </div>
+
           <input
             v-model="inputMessage"
             type="text"
@@ -114,9 +128,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import MessageList from './MessageList.vue';
 import type { Message } from '../types/chat';
+import EmojiPicker from 'vue3-emoji-picker';
 
 const props = defineProps<{
   username: string;
@@ -133,6 +148,7 @@ const props = defineProps<{
   } | null;
 }>();
 
+
 const emit = defineEmits<{
   logout: [];
   sendMessage: [text: string];
@@ -141,6 +157,53 @@ const emit = defineEmits<{
 }>();
 
 const inputMessage = ref('');
+const showEmojiPicker = ref(false);
+const inputRef = ref<HTMLInputElement | null>(null);
+const emojiButtonRef = ref<HTMLButtonElement | null>(null);
+
+// const onSelectEmoji = (emoji: { i: string }) => {
+//   inputMessage.value += emoji.i;
+//   showEmojiPicker.value = false;
+// };
+
+  const onSelectEmoji = (emoji: { i: string }) => {
+    const input = inputRef.value;
+    if (!input) {
+      inputMessage.value += emoji.i;
+      return;
+    }
+   
+    const start = input.selectionStart ?? inputMessage.value.length;
+    const end = input.selectionEnd ?? inputMessage.value.length;
+   
+    inputMessage.value =
+      inputMessage.value.slice(0, start) +
+      emoji.i +
+      inputMessage.value.slice(end);
+   
+    nextTick(() => {
+      input.focus();
+      const newPos = start + emoji.i.length;
+      input.setSelectionRange(newPos, newPos);
+    });
+   
+    showEmojiPicker.value = false;
+  };
+
+const handleClickOutside = (e: MouseEvent) => {
+  const picker = document.querySelector('.v3-emoji-picker');
+  const button = emojiButtonRef.value;
+ 
+  if (
+    picker?.contains(e.target as Node) ||
+    button?.contains(e.target as Node)
+  ) return;
+ 
+  showEmojiPicker.value = false;
+};
+
+onMounted(() => document.addEventListener('click', handleClickOutside));
+onUnmounted(() => document.removeEventListener('click', handleClickOutside));
 
 const handleLogout = () => {
   emit('logout');

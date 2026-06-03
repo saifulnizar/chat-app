@@ -106,7 +106,7 @@ export function useChat(username: string, isNewUser: boolean) {
         method: 'GET',
       });
 
-      messages.value = history;
+      messages.value = history.reverse();
 
       if (channelInfo.value && history.length > 0) {
         const last = history[history.length - 1];

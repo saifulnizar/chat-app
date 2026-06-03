@@ -9,4 +9,10 @@ export default defineConfig({
     vue(), 
     tailwindcss(),
   ],
+  resolve: {
+    conditions: ['module', 'browser', 'development', 'import', 'default'],
+  },
+  optimizeDeps: {
+    include: ['vue3-emoji-picker'],
+  },
 })

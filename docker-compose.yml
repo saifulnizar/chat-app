@@ -1,0 +1,11 @@
+services:
+  chat-app:
+    build: .
+    ports:
+      - "9892:9892"
+    networks:
+      - chat-service_chat-network
+
+networks:
+  chat-service_chat-network:
+    external: true
